@@ -7,6 +7,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const cors=require('cors');
 require('dotenv').config()
 
 const errorController = require('./controllers/error');
@@ -28,6 +29,26 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
+
+const authRoutesRest = require('./A_restApi/routes/auth');
+const shopRoutesRest = require('./A_restApi/routes/shop');
+const adminRoutesRest = require('./A_restApi/routes/admin');
+
+// Body parsing middleware for rest api
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// parse application/json
+app.use(bodyParser.json())
+
+const options = {
+  origin: 'http://localhost:3000',
+  }
+  app.use(cors(options))
+
+
+// end rest api Import
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
@@ -38,14 +59,14 @@ app.use(
     store: store
   })
 );
-app.use(csrfProtection);
+// app.use(csrfProtection);
 app.use(flash());
 
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isLoggedIn;
-  res.locals.csrfToken = req.csrfToken();
-  next();
-});
+// app.use((req, res, next) => {
+//   res.locals.isAuthenticated = req.session.isLoggedIn;
+//   res.locals.csrfToken = req.csrfToken();
+//   next();
+// });
 
 app.use((req, res, next) => {
   // throw new Error('Sync Dummy');
@@ -68,8 +89,11 @@ app.use((req, res, next) => {
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
+app.use('/api', authRoutesRest);
+app.use('/api', shopRoutesRest);
+app.use('/api/admin', adminRoutesRest);
 
-app.get('/500', errorController.get500);
+// app.get('/500', errorController.get500);
 
 app.use(errorController.get404);
 
@@ -86,7 +110,8 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(result => {
-    app.listen(3000);
+    console.log("db connected")
+    app.listen(3001);
   })
   .catch(err => {
     console.log(err);
