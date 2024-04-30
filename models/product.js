@@ -1,32 +1,71 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
 const productSchema = new Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   price: {
     type: Number,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   imageUrl: {
     type: String,
-    required: true
+    required: true,
   },
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: "User",
+    required: true,
+  },
+  changeHistory: [
+    {
+      fieldName: String,
+      oldValue: Schema.Types.Mixed,
+      newValue: Schema.Types.Mixed,
+    },
+  ],
+});
+
+productSchema.pre("updateOne", async function (next) {
+  try {
+    const existingProd = await this.model.findOne(this.getQuery());
+    const updatedProd = this.getUpdate();
+
+    if (existingProd) {
+      this.changeHistory = [];
+
+      for (const key in updatedProd) {
+        if (updatedProd[key] != existingProd.get(key)) {
+          this.changeHistory.push({
+            fieldName: key,
+            oldValue: existingProd.get(key),
+            newValue: updatedProd[key],
+          });
+        }
+      }
+    }
+
+    await this.model.update(
+      { _id: existingProd._id },
+      { $push: { changeHistory: { $each: this.changeHistory } } }
+    );
+
+    console.log(this.changeHistory, "changeHistory");
+
+    next();
+  } catch (error) {
+    next(error);
   }
 });
 
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model("Product", productSchema);
 
 // const mongodb = require('mongodb');
 // const getDb = require('../util/database').getDb;
