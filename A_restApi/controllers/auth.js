@@ -23,7 +23,7 @@ function generateRefreshToken(user) {
 // add refresh token functionality as well
 exports.postLogin = (req, res, next) => {
   console.log("worked");
-  const { email, password } = req.body;
+  const { email, password, role = "User" } = req.value.body;
 
   User.findOne({ email: email })
     .then(async (user) => {
@@ -32,7 +32,7 @@ exports.postLogin = (req, res, next) => {
         .compare(password, user.password)
         .then((doMatch) => {
           if (doMatch) {
-            const accessToken = generateAccessToken({ user: req.body.email });
+            const accessToken = generateAccessToken({ user: req.body.email, role: [] });
             const refreshToken = generateRefreshToken({ user: req.body.email });
             return res.json({
               accessToken: accessToken,
