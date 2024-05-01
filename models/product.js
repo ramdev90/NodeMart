@@ -1,3 +1,4 @@
+const ProductActivityLog = require("./product_activity_log");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -22,20 +23,18 @@ const productSchema = new Schema({
   flag: {
     type: Boolean,
     required: false,
-    default: false
+    default: false,
   },
   userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  changeHistory: [
-    {
-      fieldName: String,
-      oldValue: Schema.Types.Mixed,
-      newValue: Schema.Types.Mixed,
-    },
-  ],
+  activityLogId: {
+    type: Schema.Types.ObjectId,
+    ref: "ProductActivityLog",
+    required: false,
+  }
 });
 
 productSchema.pre("updateOne", async function (next) {
@@ -58,16 +57,31 @@ productSchema.pre("updateOne", async function (next) {
     }
 
     if (this.changeHistory.length) {
-      await this.model.update(
-        { _id: existingProd._id },
-        { $push: { changeHistory: { $each: this.changeHistory } } }
-      );
-    }
+      let productActivityLog_values = await ProductActivityLog.findOne({
+        productId: existingProd._id,
+      });
 
-    console.log(this.changeHistory, "changeHistory");
+      if (productActivityLog_values) {
+        // productActivityLog.changeHistory = [...productActivityLog.changeHistory, ...this.changeHistory];
+        // await productActivityLog.save();
+        await ProductActivityLog.updateOne(
+          { productId: existingProd._id },
+          { $push: { changeHistory: { $each: this.changeHistory } } }
+        );
+      } else {
+        let productActivityLog = new ProductActivityLog({
+          productId: existingProd._id,
+          changeHistory: this.changeHistory,
+        });
+        productActivityLog_values = await productActivityLog.save();
+      }
+
+      await this.model.update({ _id: existingProd._id }, { activityLogId: productActivityLog_values._id });
+    }
 
     next();
   } catch (error) {
+    console.log(error, "err")
     next(error);
   }
 });

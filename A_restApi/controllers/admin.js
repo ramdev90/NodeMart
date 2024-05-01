@@ -43,6 +43,9 @@ exports.getProductById = (req, res, next) => {
       path: "userId",
       select: "-password",
     })
+    .populate({
+      path: "activityLogId",
+    })
     .then((products) => {
       res.send(products);
     })
