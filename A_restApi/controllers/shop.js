@@ -16,8 +16,8 @@ const Product = require("../../models/product");
 // };
 
 
-exports.getProducts = async (req, res) => {
-  Product.find().limit(1)
+exports.getProducts = async (req, res) => { 
+  Product.find()
     .then((products) => {
       res.status(200).send(products);
     })
