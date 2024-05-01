@@ -19,6 +19,11 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
+  flag: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
@@ -52,10 +57,12 @@ productSchema.pre("updateOne", async function (next) {
       }
     }
 
-    await this.model.update(
-      { _id: existingProd._id },
-      { $push: { changeHistory: { $each: this.changeHistory } } }
-    );
+    if (this.changeHistory.length) {
+      await this.model.update(
+        { _id: existingProd._id },
+        { $push: { changeHistory: { $each: this.changeHistory } } }
+      );
+    }
 
     console.log(this.changeHistory, "changeHistory");
 

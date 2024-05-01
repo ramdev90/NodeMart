@@ -51,3 +51,15 @@ exports.getProductById = (req, res, next) => {
       return next(error);
     });
 };
+
+exports.postFlagProduct = (req, res, next) => {
+  Product.updateOne({ _id: req.params.productId }, { flag: req.body.isFlagged })    
+    .then((products) => {
+      res.send(products);
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};

@@ -5,9 +5,8 @@ const router = express.Router();
 
 const adminController = require("../controllers/admin");
 
-// need to add token middleware required in everywhen 
+// need to add token middleware required in everywhen
 
-router.get("/products", adminController.getProducts);
 router.post("/product", adminController.postProduct);
 // curl --location 'http://localhost:3001/api/admin/product' \
 // --header 'authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoicmFtZGV2LnJAdGVjaHJvdmVyc29sdXRpb25zLmNvbSIsImlhdCI6MTcxNDM4Nzk0NSwiZXhwIjoxNzE0Mzk2OTQ1fQ.w5ex8y7aZ8frCL5fOyzHvVKw2ZQfI9SB723G2RQv3NQ' \
@@ -23,6 +22,9 @@ router.post("/product", adminController.postProduct);
 
 router.put("/product/:productId", adminController.putProduct);
 
-router.get('/products/:productId', adminController.getProductById);
+router.get("/products", adminController.getProducts);
+router.get("/products/:productId", adminController.getProductById);
+
+router.post("/products/:productId", adminController.postFlagProduct);
 
 module.exports = router;
