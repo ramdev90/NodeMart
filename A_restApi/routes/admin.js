@@ -23,8 +23,10 @@ router.post("/product", adminController.postProduct);
 router.put("/product/:productId", adminController.putProduct);
 
 router.get("/products", adminController.getProducts);
-router.get("/products/:productId", adminController.getProductById);
 
+router.post("/products/excel", adminController.postExcelDownload);
+
+router.get("/products/:productId", adminController.getProductById);
 router.post("/products/:productId", adminController.postFlagProduct);
 
 module.exports = router;
