@@ -22,7 +22,6 @@ function generateRefreshToken(user) {
 // https://medium.com/@prashantramnyc/authenticate-rest-apis-in-node-js-using-jwt-json-web-tokens-f0e97669aad3
 // add refresh token functionality as well
 exports.postLogin = (req, res, next) => {
-  console.log("worked");
   const { email, password, role = "User" } = req.value.body;
 
   User.findOne({ email: email })
@@ -50,7 +49,6 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.postSingUp = async (req, res) => {
-  console.log("worked");
   const { email, password } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 12);
