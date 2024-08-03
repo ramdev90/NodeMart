@@ -13,7 +13,6 @@ exports.putProduct = async (req, res) => {
 };
 
 exports.postProduct = async (req, res) => {
-  console.log(req.body, "req Body");
   new Product(req.body)
     .save()
     .then((result) => {
